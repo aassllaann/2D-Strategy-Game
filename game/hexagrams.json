@@ -1,0 +1,30 @@
+[
+  {
+    "id": 1,
+    "name": "Qian (乾)",
+    "symbol": "☰\n☰",
+    "nature": "Pure Yang. Unyielding attack, fast advance, high risk.",
+    "yao_rules": {
+      "1": 44,
+      "2": 13,
+      "3": 10,
+      "4": 9,
+      "5": 14,
+      "6": 43
+    }
+  },
+  {
+    "id": 2,
+    "name": "Kun (坤)",
+    "symbol": "☷\n☷",
+    "nature": "Pure Yin. Yielding, defense, logistics, absorption.",
+    "yao_rules": {
+      "1": 24,
+      "2": 7,
+      "3": 15,
+      "4": 16,
+      "5": 8,
+      "6": 23
+    }
+  }
+]

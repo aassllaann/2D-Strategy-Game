@@ -1,0 +1,26 @@
+{
+  "1": [
+    {
+      "Narrative": "Your aggressive maneuver echoes the pure unyielding energy of Qian. The enemy falters, abandoning key territories. Your troops roar with newfound courage.",
+      "Philosophy": "The dragon flies in the sky; it is favorable to see the great man.",
+      "Next_Yao_Index": 5,
+      "State_Changes": {
+        "strength": 8,
+        "morale": 5,
+        "treasury": -2
+      }
+    }
+  ],
+  "2": [
+    {
+      "Narrative": "You adopt a defensive, yielding posture like Kun. The enemy overextends their supply lines and exhausts their forces against your fortified positions.",
+      "Philosophy": "The mare's devotion; yielding leading to ultimate victory.",
+      "Next_Yao_Index": 2,
+      "State_Changes": {
+        "strength": 0,
+        "morale": 2,
+        "treasury": 4
+      }
+    }
+  ]
+}

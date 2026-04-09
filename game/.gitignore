@@ -1,0 +1,10 @@
+# Godot-generated files
+.godot/
+*.translation
+
+# Exported projects
+export/
+
+# OS-generated
+.DS_Store
+Thumbs.db
