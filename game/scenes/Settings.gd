@@ -25,7 +25,7 @@ func _ready() -> void:
 	var btn_save = Button.new()
 	btn_save.text = "Save & Return"
 	btn_save.pressed.connect(func():
-		AIManager.api_key = line_edit.text.strip_edges()
+		AIManager.save_settings(line_edit.text.strip_edges())
 		get_tree().change_scene_to_file("res://scenes/MainMenu.tscn")
 	)
 	vbox.add_child(btn_save)

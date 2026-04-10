@@ -9,12 +9,18 @@ func setup(controller: TurnController) -> void:
 	_turn_controller = controller
 	
 func populate_actions(category: String) -> void:
-	# Stub method to populate specific strategy actions based on category
-	# MVP uses fixed buttons for now
+	# Clear old buttons
 	for child in action_buttons_container.get_children():
 		child.queue_free()
 		
-	var actions = ["Full Frontal Assault", "Feint and Retreat", "Supply Sabotage"]
+	var actions = []
+	match category.to_lower():
+		"attack": actions = ["Full Frontal Assault", "Flanking Maneuver", "Night Raid", "Siege Combat"]
+		"defend": actions = ["Fortify Walls", "Scorched Earth", "Ambush Trap", "Strategic Retreat"]
+		"plot": actions = ["Sowing Discord", "Surrender Invitation", "Spy Infiltration", "Rumor Campaign"]
+		"peace": actions = ["Alliance Negotiation", "Tribute Offering", "Trade Agreement", "Dynastic Marriage"]
+		_: actions = ["Proceed Cautiously"]
+		
 	for act in actions:
 		var btn = Button.new()
 		btn.text = act

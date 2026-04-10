@@ -25,7 +25,21 @@ func _ready() -> void:
 	add_child(_timeout_timer)
 	_timeout_timer.timeout.connect(_on_request_timeout)
 	
+	_load_settings()
 	_load_fallback_data()
+
+func _load_settings() -> void:
+	var config = ConfigFile.new()
+	var err = config.load("user://settings.cfg")
+	if err == OK:
+		api_key = config.get_value("AI", "api_key", "")
+
+func save_settings(new_key: String) -> void:
+	api_key = new_key
+	var config = ConfigFile.new()
+	config.set_value("AI", "api_key", api_key)
+	config.save("user://settings.cfg")
+
 
 func _load_fallback_data() -> void:
 	var path := "res://resources/fallback_narratives.json"
