@@ -13,7 +13,7 @@ static func get_next_hexagram(current_id: int, yao_index: int) -> int:
 	var rules_dict: Dictionary = hex_data["yao_rules"]
 	var str_index := str(yao_index)
 	if rules_dict.has(str_index):
-		var target := rules_dict[str_index]
+		var target = rules_dict[str_index]
 		if typeof(target) == TYPE_INT or typeof(target) == TYPE_FLOAT:
 			return int(target)
 		elif typeof(target) == TYPE_STRING:

@@ -1,8 +1,8 @@
 extends Control
 
-@onready var strength_label = $VBoxContainer/StrengthLabel
-@onready var morale_label = $VBoxContainer/MoraleLabel
-@onready var treasury_label = $VBoxContainer/TreasuryLabel
+@onready var strength_label = $HBoxContainer/StrengthLabel
+@onready var morale_label = $HBoxContainer/MoraleLabel
+@onready var treasury_label = $HBoxContainer/TreasuryLabel
 
 func _ready() -> void:
 	GameState.stats_changed.connect(_on_stats_changed)

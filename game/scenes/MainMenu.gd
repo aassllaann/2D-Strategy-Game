@@ -1,8 +1,14 @@
 extends Control
 
 func _ready() -> void:
+	var bg = ColorRect.new()
+	bg.color = Color("#121212")
+	bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	add_child(bg)
+	
 	var vbox = VBoxContainer.new()
 	vbox.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
+	vbox.add_theme_constant_override("separation", 20)
 	add_child(vbox)
 	
 	var title = Label.new()

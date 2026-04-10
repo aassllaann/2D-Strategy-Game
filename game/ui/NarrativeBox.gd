@@ -1,6 +1,6 @@
 extends Control
 
-@onready var rich_text = $RichTextLabel
+@onready var rich_text = $PanelContainer/MarginContainer/RichTextLabel
 
 func _ready() -> void:
 	rich_text.visible_characters = 0

@@ -23,7 +23,7 @@ func _load_database() -> void:
 		if result is Array:
 			for item in result:
 				if item is Dictionary and item.has("id"):
-					_hexagrams[item["id"]] = item
+					_hexagrams[int(item["id"])] = item
 		print("DatabaseManager: Loaded ", _hexagrams.size(), " hexagrams.")
 		db_loaded.emit()
 	else:

@@ -3,20 +3,22 @@
 ; since the parameters that go here are not all obvious.
 ;
 ; Format:
-;   [section] ; section goes in []
+;   [section] ; section goes between []
 ;   param=value ; assign values to parameters
 
-[configuration]
-
 config_version=5
+
+[animation]
+
+compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 
 [application]
 
 config/name="I Ching Grand Strategy: The Executor"
-config/version="0.1.0-dev"
 config/description="A 2D ink-wash strategy + visual novel game where players interpret I Ching hexagrams to shape war narratives."
+config/version="0.1.0-dev"
 run/main_scene="res://scenes/MainMenu.tscn"
-config/features=PackedStringArray("4.3", "GL Compatibility")
+config/features=PackedStringArray("4.6", "GL Compatibility")
 config/icon="res://icon.svg"
 
 [autoload]
@@ -25,13 +27,20 @@ DatabaseManager="*res://autoloads/DatabaseManager.gd"
 GameState="*res://autoloads/GameState.gd"
 AIManager="*res://autoloads/AIManager.gd"
 
+[configuration]
+
+config_version=5
+
 [display]
 
 window/size/viewport_width=1280
 window/size/viewport_height=720
-window/size/resizable=true
 window/stretch/mode="canvas_items"
-window/stretch/aspect="keep"
+
+[gdscript]
+
+warnings/untyped_declaration=1
+warnings/return_value_discarded=0
 
 [input]
 
@@ -42,17 +51,7 @@ ui_confirm={
 ]
 }
 
-[physics]
-
-common/physics_ticks_per_second=60
-
 [rendering]
 
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
-textures/canvas_textures/default_texture_filter=1
-
-[gdscript]
-
-warnings/untyped_declaration=1
-warnings/return_value_discarded=0
