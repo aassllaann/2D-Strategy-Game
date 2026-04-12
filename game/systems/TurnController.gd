@@ -18,20 +18,21 @@ var current_phase: int = GamePhase.IDLE
 func start_selection() -> void:
 	_change_phase(GamePhase.SELECTING_ACTION)
 
-func submit_action(action_id: String) -> void:
+func submit_action(category: String, action_name: String) -> void:
 	if current_phase != GamePhase.SELECTING_ACTION:
 		return
 	_change_phase(GamePhase.WAITING_AI)
-	
-	var hex = DatabaseManager.get_hexagram(GameState.current_hexagram_id)
-	var stats = {
+
+	var hex := DatabaseManager.get_hexagram(GameState.current_hexagram_id)
+	var stats := {
 		"strength": GameState.strength,
 		"morale": GameState.morale,
 		"treasury": GameState.treasury
 	}
-	AIManager.consult(hex, action_id, stats)
+	var recent := GameState.get_recent_narrative_summary()
+	AIManager.consult(hex, category, action_name, stats, recent)
 
-func on_ai_completed(result: Dictionary) -> void:
+func on_ai_completed(_result: Dictionary) -> void:
 	if current_phase != GamePhase.WAITING_AI:
 		return
 	_change_phase(GamePhase.RESOLVING_NARRATIVE)
