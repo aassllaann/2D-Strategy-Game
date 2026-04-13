@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 -c ':*)",
+      "Bash(python -c ':*)",
+      "Bash(python tools/batch1_fallback.py)",
+      "Bash(python tools/batch2_fallback.py)",
+      "Bash(python:*)"
+    ]
+  }
+}

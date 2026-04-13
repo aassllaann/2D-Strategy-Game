@@ -142,15 +142,14 @@ func _on_consult_failed(error_msg: String) -> void:
 
 func _on_ai_completed(result: Dictionary) -> void:
 	_turn_controller.on_ai_completed(result)
-	var normalized := AIResponseParser.normalize(result)
-	var text: String = str(normalized.get("narrative", ""))
-	var philosophy: String = str(normalized.get("philosophy", ""))
-	var analysis: String = str(normalized.get("analysis", ""))
+	var text: String = str(result.get("narrative", ""))
+	var philosophy: String = str(result.get("philosophy", ""))
+	var analysis: String = str(result.get("analysis", ""))
 	narrative_box.show_narrative(text, philosophy, analysis)
 
 	var old_id := GameState.current_hexagram_id
-	var deltas: Dictionary = normalized.get("delta_stats", {})
-	var yc: int = GameState.apply_turn_deltas(deltas, int(normalized.get("yao_changed", 1)))
+	var deltas: Dictionary = result.get("delta_stats", {})
+	var yc: int = GameState.apply_turn_deltas(deltas, int(result.get("yao_changed", 1)))
 	var next_hex := RuleEngine.get_next_hexagram(old_id, yc)
 	if hexagram_display.has_method("play_hexagram_sequence"):
 		await hexagram_display.play_hexagram_sequence(old_id, next_hex, yc)

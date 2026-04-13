@@ -19,6 +19,12 @@ const SYSTEM_PROMPT: String = """【角色设定】
 【任务】
 根据以下输入，生成本回合战争叙事并判定动爻。
 
+【输入格式】
+- 当前卦象：{卦名} (卦号: {id})，卦性：{nature}
+- 当前三才：国力 {strength} / 民心 {morale} / 资财 {treasury}
+- 玩家行动：{战略范畴} → {具体行动}
+- 历史背景：{最近数回合叙事摘要}
+
 【输出规则】
 1. 严格返回 JSON 对象本身，不得包含任何 JSON 之外的文字、Markdown 代码围栏或解释。
 2. 字段名必须使用英文小写键：narrative, yao_changed, delta_stats, philosophy, analysis；可选 next_hexagram_hint。
@@ -27,12 +33,14 @@ const SYSTEM_PROMPT: String = """【角色设定】
 5. delta_stats 对象内含 strength、morale、treasury 三个整数，每个范围 -20~+20。
 6. philosophy：20~40 字判词，化用卦爻意象，勿长段照抄经文。
 7. 数值变动须自洽，避免三项同时大幅正向飙升。
-8. analysis：200~350 字的五段式推演解析，各段以【】标注段名，依序为：
+8. analysis：五段式推演解析，各段以【】标注段名，每段 200~350 字，总五段不超过 1500 Token，依序为：
    【情境背景】本回合所处局势与战略环境的简要说明；
    【选择后果】玩家此次行动带来的直接影响与具体结果；
    【因果推演】上述后果产生的深层原因——兵势、民心、地利、时机等多维分析；
    【卦爻解析】本卦卦象的核心象义，以及第 yao_changed 爻动变后所示的警示或启示；
-   【卦象演变】结合因果推演与卦爻象义，说明此番动变为何导致卦象由本卦演变至下一卦，以及新卦预示的后续走势与应对之道。"""
+   【卦象演变】结合因果推演与卦爻象义，说明此番动变为何导致卦象由本卦演变至下一卦，
+              以及新卦预示的后续走势与应对之道。
+9. next_hexagram_hint（可选）：对下一卦走向的隐喻描述，15~30 字，无把握时可省略。"""
 
 var provider: int = Provider.DEEPSEEK
 var gemini_key: String = ""
@@ -182,6 +190,15 @@ func consult(hexagram: Dictionary, category: String, action_name: String, stats:
 		_finish_with_fallback("无法发起网络请求，已切换兜底。")
 
 
+func _category_zh(cat: String) -> String:
+	match cat:
+		"attack":    return "攻击"
+		"defense":   return "防御"
+		"scheme":    return "计谋"
+		"diplomacy": return "和谈"
+		_:           return cat
+
+
 func _build_user_message(hexagram: Dictionary, category: String, action_name: String, stats: Dictionary, recent_summary: String) -> String:
 	var name_zh := str(hexagram.get("name_zh", hexagram.get("name", "")))
 	var hid := int(hexagram.get("id", 0))
@@ -189,15 +206,15 @@ func _build_user_message(hexagram: Dictionary, category: String, action_name: St
 	var summ := recent_summary.strip_edges()
 	if summ.is_empty():
 		summ = "（无）"
-	return """当前卦象：%s (卦号: %d)，卦性：%s
-当前三才：国力 %d / 民心 %d / 资财 %d
-玩家行动：%s → %s
-历史背景：%s""" % [
+	return """- 当前卦象：%s (卦号: %d)，卦性：%s
+- 当前三才：国力 %d / 民心 %d / 资财 %d
+- 玩家行动：%s → %s
+- 历史背景：%s""" % [
 		name_zh, hid, nature,
 		int(stats.get("strength", 50)),
 		int(stats.get("morale", 50)),
 		int(stats.get("treasury", 50)),
-		category, action_name,
+		_category_zh(category), action_name,
 		summ
 	]
 
