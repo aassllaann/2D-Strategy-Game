@@ -18,6 +18,7 @@ func _ready() -> void:
 func load_all() -> void:
 	var c := ConfigFile.new()
 	if c.load("user://settings.cfg") != OK:
+		_apply_audio()   # 用默认值初始化总线
 		return
 	animation_fast = bool(c.get_value("display", "animation_fast", false))
 	text_speed = int(c.get_value("display", "text_speed", 3))
@@ -25,6 +26,7 @@ func load_all() -> void:
 	sfx_volume = int(c.get_value("audio", "sfx_volume", 80))
 	fullscreen = bool(c.get_value("display", "fullscreen", false))
 	_apply_window_mode()
+	_apply_audio()
 
 
 func save_from_controls(anim_fast: bool, t_speed: int, bgm: int, sfx: int, fs: bool) -> void:
@@ -43,6 +45,7 @@ func save_from_controls(anim_fast: bool, t_speed: int, bgm: int, sfx: int, fs: b
 	c.set_value("audio", "sfx_volume", sfx_volume)
 	c.save("user://settings.cfg")
 	_apply_window_mode()
+	_apply_audio()
 	settings_changed.emit()
 
 
@@ -60,3 +63,28 @@ func _apply_window_mode() -> void:
 		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
 	else:
 		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+
+
+## 将 0–100 音量线性值写入 AudioServer 对应总线
+func _apply_audio() -> void:
+	_ensure_bus("BGM")
+	_ensure_bus("SFX")
+	AudioServer.set_bus_volume_db(AudioServer.get_bus_index("BGM"), _vol_to_db(bgm_volume))
+	AudioServer.set_bus_volume_db(AudioServer.get_bus_index("SFX"), _vol_to_db(sfx_volume))
+
+
+## 若总线不存在则动态创建并挂到 Master
+func _ensure_bus(bus_name: String) -> void:
+	if AudioServer.get_bus_index(bus_name) != -1:
+		return
+	AudioServer.add_bus()
+	var idx := AudioServer.bus_count - 1
+	AudioServer.set_bus_name(idx, bus_name)
+	AudioServer.set_bus_send(idx, "Master")
+
+
+## 线性 0–100 → dB（0 → -80 dB 静音，100 → 0 dB 满音量）
+func _vol_to_db(v: int) -> float:
+	if v <= 0:
+		return -80.0
+	return linear_to_db(v / 100.0)

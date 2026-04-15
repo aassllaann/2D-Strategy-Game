@@ -34,6 +34,29 @@ static func compute_score() -> int:
 	return base + round_bonus + hex_bonus + coherence
 
 
+## 返回各分项明细，供结局画面展示
+static func compute_score_breakdown() -> Dictionary:
+	var gs          := GameState
+	var base        := (gs.strength + gs.morale + gs.treasury) * 10
+	var round_bonus := (gs.max_turns - gs.current_turn) * 50
+	var hex_bonus   := hexagram_reward(gs.current_hexagram_id)
+	var coherence   := 0 if gs.ever_in_crisis else 300
+	return {
+		"base":        base,
+		"round_bonus": round_bonus,
+		"hex_bonus":   hex_bonus,
+		"hex_tier":    _hex_tier(hex_bonus),
+		"coherence":   coherence,
+		"raw_total":   base + round_bonus + hex_bonus + coherence,
+	}
+
+
+static func _hex_tier(bonus: int) -> String:
+	if bonus >= 500: return "吉"
+	if bonus <= 0:   return "凶"
+	return "中"
+
+
 static func grade_for(score: int) -> String:
 	if score >= 5000:
 		return "S"

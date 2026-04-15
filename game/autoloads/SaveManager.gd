@@ -8,11 +8,20 @@ func has_autosave() -> bool:
 	return FileAccess.file_exists(AUTOSAVE_PATH)
 
 
+func has_manual() -> bool:
+	return FileAccess.file_exists(MANUAL_PATH)
+
+
 func delete_autosave() -> void:
 	if not FileAccess.file_exists(AUTOSAVE_PATH):
 		return
-	var abs_path := ProjectSettings.globalize_path(AUTOSAVE_PATH)
-	DirAccess.remove_absolute(abs_path)
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(AUTOSAVE_PATH))
+
+
+func delete_manual() -> void:
+	if not FileAccess.file_exists(MANUAL_PATH):
+		return
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(MANUAL_PATH))
 
 
 func write_autosave() -> void:

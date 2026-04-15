@@ -98,7 +98,8 @@ func save_settings(new_provider: int, new_gemini_key: String, new_claude_key: St
 	config.set_value("AI", "gemini_key", gemini_key)
 	config.set_value("AI", "claude_key", claude_key)
 	config.set_value("AI", "deepseek_key", deepseek_key)
-	config.erase_section_key("AI", "api_key")
+	if config.has_section_key("AI", "api_key"):
+		config.erase_section_key("AI", "api_key")
 	config.save("user://settings.cfg")
 
 

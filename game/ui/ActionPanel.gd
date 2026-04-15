@@ -1,11 +1,29 @@
 extends Control
 
 signal strategy_chosen(category_key: String, action_name: String)
+signal hint_requested
 
 @onready var _buttons_container: VBoxContainer = $VBoxContainer/ButtonsContainer
 @onready var _title: Label = $VBoxContainer/Label
 
 var _turn_controller: TurnController
+var _hint_btn: Button
+
+
+func _ready() -> void:
+	_hint_btn = Button.new()
+	_hint_btn.text = "【提示】查看卦爻解析"
+	_hint_btn.visible = false
+	_hint_btn.pressed.connect(func() -> void: hint_requested.emit())
+	# 插入到 VBoxContainer 中 Label 之后、ButtonsContainer 之前
+	var vbox: VBoxContainer = _buttons_container.get_parent() as VBoxContainer
+	vbox.add_child(_hint_btn)
+	vbox.move_child(_hint_btn, 1)
+
+
+func show_hint_button(v: bool) -> void:
+	if _hint_btn:
+		_hint_btn.visible = v
 var _category_keys: Array[String] = ["attack", "defense", "scheme", "diplomacy"]
 var _category_labels: Dictionary = {
 	"attack": "攻击",

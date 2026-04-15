@@ -54,17 +54,64 @@ static func check_ending() -> int:
 
 
 static func _arm_score_for_defeat() -> void:
-	var sc := ScoreCalculator.compute_score()
-	GameState.last_score = mini(sc, 999)
+	var bd := ScoreCalculator.compute_score_breakdown()
+	GameState.last_score_breakdown = bd
+	GameState.last_score = mini(bd["raw_total"], 999)
 	GameState.last_grade = "D"
 
 
 static func _arm_score_for_win(best: bool) -> void:
-	var sc := ScoreCalculator.compute_score()
+	var bd := ScoreCalculator.compute_score_breakdown()
+	GameState.last_score_breakdown = bd
+	var sc: int = bd["raw_total"]
 	if not best:
 		sc = mini(sc, 4800)
 	GameState.last_score = sc
 	GameState.last_grade = ScoreCalculator.grade_for(sc)
+
+
+static func is_victory(t: int) -> bool:
+	return t == EndingType.WIN_PARTIAL or t == EndingType.WIN_TOTAL
+
+
+static func get_accent_color(t: int) -> Color:
+	match t:
+		EndingType.WIN_TOTAL:
+			return Color("#C9A227")
+		EndingType.WIN_PARTIAL:
+			return Color("#2E7D6B")
+		EndingType.ENDING_STALE:
+			return Color("#888888")
+		_:
+			return Color("#C0392B")
+
+
+static func get_badge_for(t: int) -> String:
+	match t:
+		EndingType.WIN_TOTAL:   return "— 天命归一 —"
+		EndingType.WIN_PARTIAL: return "— 保境安民 —"
+		EndingType.ENDING_STALE: return "— 时运未济 —"
+		_:                      return "— 大势已去 —"
+
+
+static func get_body_for(t: int) -> String:
+	match t:
+		EndingType.DEFEAT_STRENGTH:
+			return "国力耗竭，疆土四分五裂。边陲烽火未熄，腹地已遭侵蚀，王旗所向，无一响应之师。三军哗散，朝堂离心，纵有天命加身，亦难挽此颓势。一代基业，竟殒于一朝之间，史书之上，留下的不过是一页仓惶的败亡记录。"
+		EndingType.DEFEAT_MORALE:
+			return "军心涣散，哗变之声此起彼伏。士卒弃甲投戈，将帅阴怀异志，令行不止，禁而不绝。民间怨声载道，昔日赖以为根本的人心，已悄然流失殆尽。没有民心，纵有金城汤池，亦不过是空中楼阁，终成一场空。"
+		EndingType.DEFEAT_TREASURY:
+			return "府库空竭，百业凋零。军需粮秣无以为继，赏赐封爵皆成空文，将士寒心，商贾远遁。天下之事，未有无财而能立业者，枯竭的仓廪敲响了王朝的最后丧钟。钱粮既绝，兵无战心，民无耕意，大厦倾于一旦。"
+		EndingType.DEFEAT_LATE_COLLAPSE:
+			return "眼看大功垂成，却在最后关头轰然崩塌。二十余载运筹帷幄，一朝之间付诸东流。敌军趁虚而入，国力急转直下，再难挽回。棋至残局，方知一步错则满盘皆输。功败垂成，或许是最令人扼腕的结局。"
+		EndingType.WIN_PARTIAL:
+			return "天下未能混一，然疆土尚存，百姓得以休养生息。虽非一统之功，然能在乱世保境安民，亦是一方明主之德。史书或不会浓墨重彩地书写这段历史，但那片土地上的炊烟与笑声，终将成为最真实的注脚。"
+		EndingType.WIN_TOTAL:
+			return "三才俱旺，四海臣服。兵革止息，天下归于一统。国师妙算，运筹帷幄之中，决胜千里之外；诸侯俯首，百姓欢颜，史册将以盛世之名铭记这段传奇。易理深邃，变中有常，此番乾坤拨转，亦是卦象所指引的天命归宿。"
+		EndingType.ENDING_STALE:
+			return "二十五回合流光飞逝，然大业终未竟。三才勉强维系，却未能突破困局。时运弄人，或许只差一步，或许差之甚远。历史的洪流不因个人意志而停歇，这段未竟的篇章，终将成为一段留有遗憾的记忆。"
+		_:
+			return "故事告一段落。"
 
 
 static func get_ending_scene_path(ending_type: int) -> String:

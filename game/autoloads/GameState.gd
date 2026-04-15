@@ -34,6 +34,7 @@ var flags: Dictionary = {
 var last_ending_type: int = 0
 var last_score: int = 0
 var last_grade: String = ""
+var last_score_breakdown: Dictionary = {}
 
 const BANNED_START_HEX_IDS: Array = [29, 47]
 
@@ -247,4 +248,5 @@ func _reset_run_state() -> void:
 	last_ending_type = 0
 	last_score = 0
 	last_grade = ""
+	last_score_breakdown = {}
 	turn_advanced.emit(current_turn)

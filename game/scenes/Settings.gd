@@ -128,6 +128,11 @@ func _ready() -> void:
 	bgm_slider.value = AppSettings.bgm_volume
 	bgm_slider.custom_minimum_size.x = 280
 	bgm_row.add_child(bgm_slider)
+	var bgm_val := Label.new()
+	bgm_val.text = str(int(bgm_slider.value))
+	bgm_val.custom_minimum_size.x = 32
+	bgm_slider.value_changed.connect(func(v: float) -> void: bgm_val.text = str(int(v)))
+	bgm_row.add_child(bgm_val)
 	vbox.add_child(bgm_row)
 
 	var sfx_row := HBoxContainer.new()
@@ -141,6 +146,11 @@ func _ready() -> void:
 	sfx_slider.value = AppSettings.sfx_volume
 	sfx_slider.custom_minimum_size.x = 280
 	sfx_row.add_child(sfx_slider)
+	var sfx_val := Label.new()
+	sfx_val.text = str(int(sfx_slider.value))
+	sfx_val.custom_minimum_size.x = 32
+	sfx_slider.value_changed.connect(func(v: float) -> void: sfx_val.text = str(int(v)))
+	sfx_row.add_child(sfx_val)
 	vbox.add_child(sfx_row)
 
 	## ── 全屏 ──
