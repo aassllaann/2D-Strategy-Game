@@ -44,7 +44,7 @@ func _ready() -> void:
 	btn_start.pressed.connect(func() -> void:
 		SaveManager.delete_autosave()
 		GameState.start_new_run()
-		get_tree().change_scene_to_file("res://scenes/Intro.tscn")
+		SceneTransition.change_scene("res://scenes/Intro.tscn")
 	)
 	vbox.add_child(btn_start)
 
@@ -59,14 +59,14 @@ func _ready() -> void:
 
 func _on_continue_pressed() -> void:
 	if SaveManager.load_autosave():
-		get_tree().change_scene_to_file("res://scenes/HexagramConsult.tscn")
+		SceneTransition.change_scene("res://scenes/HexagramConsult.tscn")
 	else:
 		_show_corrupt_dialog("autosave")
 
 
 func _on_load_manual_pressed() -> void:
 	if SaveManager.load_manual():
-		get_tree().change_scene_to_file("res://scenes/HexagramConsult.tscn")
+		SceneTransition.change_scene("res://scenes/HexagramConsult.tscn")
 	else:
 		_show_corrupt_dialog("manual")
 

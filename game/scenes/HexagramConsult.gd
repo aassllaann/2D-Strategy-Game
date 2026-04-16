@@ -20,6 +20,7 @@ var _turn_controller: TurnController
 var _last_category: String = ""
 var _last_action: String = ""
 var _tutorial_dismissed_round: int = -1
+var _tutorial_nodes: Array = []  # 仅追踪教程相关节点，不误清 save-toast
 
 
 func _ready() -> void:
@@ -394,29 +395,103 @@ func _maybe_show_tutorial() -> void:
 	var r := GameState.current_turn
 	if r > 3 or _tutorial_dismissed_round == r:
 		return
-	for c in _tutorial_layer.get_children():
-		c.queue_free()
-	var bubble := PanelContainer.new()
-	bubble.offset_left = 40
-	bubble.offset_top  = 120 + (r - 1) * 40
-	var vb := VBoxContainer.new()
-	bubble.add_child(vb)
-	var msg := Label.new()
-	msg.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_clear_tutorial_nodes()
+	# 等布局稳定后再读 global_rect
+	await get_tree().process_frame
 	match r:
-		1: msg.text = "提示：请选择战略范畴，再选定具体行动。"
-		2: msg.text = "提示：卦象象征当前战局本质，随变爻而迁转。左侧「卦爻解析」可辅助决策。"
-		_: msg.text = "提示：国力、民心、资财为三才根基，任一长期濒危则大势难支。"
-	vb.add_child(msg)
-	var hb  := HBoxContainer.new()
-	vb.add_child(hb)
-	var close := Button.new()
-	close.text = "知道了"
-	close.pressed.connect(func() -> void:
+		1: _show_tutorial_bubble(action_panel,
+				"[b]【战略选择】[/b]\n从四个战略方向选择一种行动。\n你的决策将触发变爻，推动卦象流转。")
+		2: _show_tutorial_bubble(hexagram_display,
+				"[b]【卦象区】[/b]\n卦象象征当前战局本质。\n左侧「卦爻解析」阐述爻辞含义，可辅助决策。")
+		3: _show_tutorial_bubble(stats_hud,
+				"[b]【三才 HUD】[/b]\n国力·民心·资财为三才根基。\n任一归零则游戏结束，须时刻兼顾。")
+
+
+func _clear_tutorial_nodes() -> void:
+	for n in _tutorial_nodes:
+		if is_instance_valid(n):
+			n.queue_free()
+	_tutorial_nodes.clear()
+
+
+func _show_tutorial_bubble(target: Control, text: String) -> void:
+	var rect := target.get_global_rect()
+
+	# ── 半透明全屏遮罩 ──
+	var shade := ColorRect.new()
+	shade.color = Color(0, 0, 0, 0.52)
+	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	shade.mouse_filter = Control.MOUSE_FILTER_STOP
+	_tutorial_layer.add_child(shade)
+	_tutorial_nodes.append(shade)
+
+	# ── 金色高亮边框（叠在目标区域上方）──
+	var highlight := Panel.new()
+	highlight.position = rect.position - Vector2(4, 4)
+	highlight.size     = rect.size + Vector2(8, 8)
+	highlight.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var hl_style := StyleBoxFlat.new()
+	hl_style.bg_color = Color(0, 0, 0, 0)
+	hl_style.set_border_width_all(3)
+	hl_style.border_color = Color(1.0, 0.85, 0.3)
+	hl_style.corner_radius_top_left    = 6
+	hl_style.corner_radius_top_right   = 6
+	hl_style.corner_radius_bottom_left = 6
+	hl_style.corner_radius_bottom_right = 6
+	highlight.add_theme_stylebox_override("panel", hl_style)
+	_tutorial_layer.add_child(highlight)
+	_tutorial_nodes.append(highlight)
+
+	# ── 说明气泡 ──
+	var bubble := PanelContainer.new()
+	var bub_style := StyleBoxFlat.new()
+	bub_style.bg_color = Color(0.10, 0.09, 0.06, 0.95)
+	bub_style.set_border_width_all(1)
+	bub_style.border_color = Color(1.0, 0.85, 0.3, 0.8)
+	bub_style.corner_radius_top_left    = 6
+	bub_style.corner_radius_top_right   = 6
+	bub_style.corner_radius_bottom_left = 6
+	bub_style.corner_radius_bottom_right = 6
+	bub_style.content_margin_left   = 16
+	bub_style.content_margin_right  = 16
+	bub_style.content_margin_top    = 12
+	bub_style.content_margin_bottom = 12
+	bubble.add_theme_stylebox_override("panel", bub_style)
+
+	var bvbox := VBoxContainer.new()
+	bvbox.add_theme_constant_override("separation", 10)
+	bubble.add_child(bvbox)
+
+	var lbl := RichTextLabel.new()
+	lbl.bbcode_enabled = true
+	lbl.fit_content    = true
+	lbl.custom_minimum_size = Vector2(300, 0)
+	lbl.add_theme_font_size_override("normal_font_size", 15)
+	lbl.add_theme_color_override("default_color", Color("#e8d5a3"))
+	lbl.text = text
+	bvbox.add_child(lbl)
+
+	var r := GameState.current_turn
+	var close_btn := Button.new()
+	close_btn.text = "知道了"
+	close_btn.alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	close_btn.pressed.connect(func() -> void:
 		_tutorial_dismissed_round = r
 		if r >= 3:
 			GameState.flags["tutorial_completed"] = true
-		bubble.queue_free()
+			SaveManager.write_autosave()
+		_clear_tutorial_nodes()
 	)
-	hb.add_child(close)
+	bvbox.add_child(close_btn)
+
 	_tutorial_layer.add_child(bubble)
+	_tutorial_nodes.append(bubble)
+
+	# 等气泡完成尺寸计算后再定位
+	await get_tree().process_frame
+	var vp := get_viewport().get_visible_rect().size
+	var bx := clampf(rect.get_center().x - bubble.size.x / 2.0, 8.0, vp.x - bubble.size.x - 8.0)
+	var by := rect.end.y + 12.0
+	if by + bubble.size.y > vp.y - 8.0:
+		by = rect.position.y - bubble.size.y - 12.0
+	bubble.position = Vector2(bx, by)

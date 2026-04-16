@@ -28,6 +28,7 @@ GameState="*res://autoloads/GameState.gd"
 SaveManager="*res://autoloads/SaveManager.gd"
 AppSettings="*res://autoloads/AppSettings.gd"
 AIManager="*res://autoloads/AIManager.gd"
+SceneTransition="*res://autoloads/SceneTransition.gd"
 
 [configuration]
 

@@ -116,7 +116,7 @@ func _ready() -> void:
 	btn_back.text = "返回主菜单"
 	btn_back.custom_minimum_size = Vector2(140, 44)
 	btn_back.pressed.connect(func() -> void:
-		get_tree().change_scene_to_file("res://scenes/MainMenu.tscn")
+		SceneTransition.change_scene("res://scenes/MainMenu.tscn")
 	)
 	btn_row.add_child(btn_back)
 
@@ -125,6 +125,6 @@ func _ready() -> void:
 	btn_start.custom_minimum_size = Vector2(140, 44)
 	btn_start.add_theme_font_size_override("font_size", 18)
 	btn_start.pressed.connect(func() -> void:
-		get_tree().change_scene_to_file("res://scenes/HexagramConsult.tscn")
+		SceneTransition.change_scene("res://scenes/HexagramConsult.tscn")
 	)
 	btn_row.add_child(btn_start)
