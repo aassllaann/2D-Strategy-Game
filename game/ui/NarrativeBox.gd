@@ -1,10 +1,9 @@
 extends Control
 
 var _scroll: ScrollContainer
-var _story_label: RichTextLabel    # 叙事 + 判词（打字机）
-var _analysis_box: VBoxContainer   # 推演解析区（独立节点，typewriter 结束后显示）
+var _story_label: RichTextLabel
+var _analysis_box: VBoxContainer
 var _analysis_label: RichTextLabel
-var _active_tween: Tween = null
 
 
 func _ready() -> void:
@@ -38,7 +37,8 @@ func _ready() -> void:
 	_story_label.bbcode_enabled = true
 	_story_label.fit_content = true
 	_story_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_story_label.visible_characters = 0
+	_story_label.add_theme_font_size_override("normal_font_size", 16)
+	_story_label.add_theme_color_override("default_color", Color("#e8d5a3"))
 	vbox.add_child(_story_label)
 
 	# 推演解析区（分隔线 + 标题 + 内容）
@@ -70,10 +70,6 @@ func _ready() -> void:
 
 
 func show_narrative(text: String, philosophy: String = "", analysis: String = "") -> void:
-	if _active_tween:
-		_active_tween.kill()
-		_active_tween = null
-
 	# 隐藏并清空上次的分析区
 	_analysis_box.hide()
 	_analysis_label.text = ""
@@ -84,19 +80,9 @@ func show_narrative(text: String, philosophy: String = "", analysis: String = ""
 		story_text += "\n\n[i][color=#cccccc]" + philosophy + "[/color][/i]"
 
 	_story_label.text = story_text
-	_story_label.visible_characters = 0
 	_scroll.scroll_vertical = 0
 
-	# 打字机动画（上限 3 秒，避免等待过长）
-	var per := AppSettings.get_typewriter_char_seconds()
-	var story_len := text.length() + philosophy.length()
-	var duration := maxf(0.8, minf(3.0, float(story_len) * per))
-
-	_active_tween = get_tree().create_tween()
-	_active_tween.tween_property(_story_label, "visible_ratio", 1.0, duration) \
-		.set_trans(Tween.TRANS_LINEAR)
-
-	# 打字机结束后显示分析区（直接操作节点，无 text 替换）
+	# 推演解析区（分析内容直接显示，无动画）
 	if analysis.strip_edges() != "":
 		var formatted := analysis.strip_edges()
 		formatted = formatted.replace("【情境背景】", "[color=#a8d8a8][b]【情境背景】[/b][/color]")
@@ -105,9 +91,6 @@ func show_narrative(text: String, philosophy: String = "", analysis: String = ""
 		formatted = formatted.replace("【卦爻解析】", "[color=#9bb1d4][b]【卦爻解析】[/b][/color]")
 		formatted = formatted.replace("【卦象演变】", "[color=#d4a8d4][b]【卦象演变】[/b][/color]")
 		_analysis_label.text = formatted
-
-		_active_tween.tween_callback(func() -> void:
-			_analysis_box.show()
-			# 延迟一帧再滚动，确保布局已更新
-			_scroll.call_deferred(&"set_v_scroll", _scroll.get_v_scroll_bar().max_value)
-		)
+		_analysis_box.show()
+	else:
+		_analysis_box.hide()
